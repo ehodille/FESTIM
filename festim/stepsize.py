@@ -15,6 +15,8 @@ class Stepsize:
             t_stop. Defaults to None.
         dt_min (float, optional): Minimum stepsize below which an error is
             raised. Defaults to None.
+        dt_max (float, optional): Maximum stepsize above which the adaptive
+            time step is stopped
 
     Attributes:
         adaptive_stepsize (dict): contains the parameters for adaptive stepsize
@@ -29,6 +31,7 @@ class Stepsize:
         t_stop=None,
         stepsize_stop_max=None,
         dt_min=None,
+        dt_max=None
     ) -> None:
         self.adaptive_stepsize = None
         if stepsize_change_ratio is not None:
@@ -37,6 +40,7 @@ class Stepsize:
                 "t_stop": t_stop,
                 "stepsize_stop_max": stepsize_stop_max,
                 "dt_min": dt_min,
+                "dt_max": dt_stop,
             }
         self.initial_value = initial_value
         self.value = None
@@ -57,6 +61,7 @@ class Stepsize:
         """
         change_ratio = self.adaptive_stepsize["stepsize_change_ratio"]
         dt_min = self.adaptive_stepsize["dt_min"]
+        dt_max = self.adaptive_stepsize["dt_max"]
         stepsize_stop_max = self.adaptive_stepsize["stepsize_stop_max"]
         t_stop = self.adaptive_stepsize["t_stop"]
         if not converged:
@@ -64,7 +69,10 @@ class Stepsize:
             if float(self.value) < dt_min:
                 raise ValueError("stepsize reached minimal value")
         if nb_it < 5:
-            self.value.assign(float(self.value) * change_ratio)
+            if self.value <= dt_max:
+                self.value.assign(float(self.value) * change_ratio)
+            else:
+                self.value.assign(dt_max)
         else:
             self.value.assign(float(self.value) / change_ratio)
 
@@ -72,3 +80,4 @@ class Stepsize:
             if t >= t_stop:
                 if float(self.value) > stepsize_stop_max:
                     self.value.assign(stepsize_stop_max)
+        print('time step is ',float(self.value),' s')
