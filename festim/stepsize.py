@@ -40,7 +40,7 @@ class Stepsize:
                 "t_stop": t_stop,
                 "stepsize_stop_max": stepsize_stop_max,
                 "dt_min": dt_min,
-                "dt_max": dt_stop,
+                "dt_max": dt_max
             }
         self.initial_value = initial_value
         self.value = None
@@ -69,7 +69,7 @@ class Stepsize:
             if float(self.value) < dt_min:
                 raise ValueError("stepsize reached minimal value")
         if nb_it < 5:
-            if self.value <= dt_max:
+            if float(self.value) * change_ratio < dt_max:
                 self.value.assign(float(self.value) * change_ratio)
             else:
                 self.value.assign(dt_max)

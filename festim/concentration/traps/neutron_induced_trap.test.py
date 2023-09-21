@@ -70,29 +70,28 @@ class NeutronInducedTrap(ExtrinsicTrapBase):
         """
         density = self.density[0]
         T = T.T
-        
-        F = 0 
-        
-        for mat in self.materials:
-            mat_id = mat.id
-            F += (
-                ((density - self.density_previous_solution) / dt.value)
-                * self.density_test_function
-                * dx(mat_id)
-            )
-            F += (
-                -self.phi
-                * self.K
-                * (1 - (density / self.n_max))
-                * self.density_test_function
-                * dx(mat_id)
-            )
-            F += (
-                self.A_0
-                * f.exp(-self.E_A / (k_B * T))
-                * density
-                * self.density_test_function
-                * dx(mat_id)
-            )
+
+        #self.form_density = 0
+
+        F = (
+            ((density - self.density_previous_solution) / dt.value)
+            * self.density_test_function
+            * dx(8)
+        )
+        F += (
+            -self.phi
+            * self.K
+            * (1 - (density / self.n_max))
+            * self.density_test_function
+            * dx(8)
+        )
+        F += (
+            self.A_0
+            * f.exp(-self.E_A / (k_B * T))
+            * density
+            * self.density_test_function
+            * dx(8)
+        )
 
         self.form_density = F
+        print(dx(8))

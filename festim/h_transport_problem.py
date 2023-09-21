@@ -63,7 +63,8 @@ class HTransportProblem:
         self.define_function_space(mesh)
         self.initialise_concentrations()
         self.traps.make_traps_materials(materials)
-        self.traps.initialise_extrinsic_traps(self.V_CG1)
+        self.traps.initialise_extrinsic_traps(self.V_DG1)       # MAYBE CREATE A FLAG TO CHOOSE
+        #self.traps.initialise_extrinsic_traps(self.V_CG1)
 
         # Define variational problem H transport
         # if chemical pot create form to convert theta to concentration
