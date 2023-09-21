@@ -194,7 +194,15 @@ class Simulation:
         self.T.boundary_conditions = []
         self.h_transport_problem.boundary_conditions = []
 
+        valid_fields = (
+            ["T", 0, "0"]  # temperature and mobile concentration
+            + [str(i + 1) for i, _ in enumerate(self.traps.traps)]
+            + [i + 1 for i, _ in enumerate(self.traps.traps)]
+        )
+
         for bc in self.boundary_conditions:
+            if bc.field not in valid_fields:
+                raise ValueError(f"{bc.field} is not a valid field for BC")
             if bc.field == "T":
                 self.T.boundary_conditions.append(bc)
             else:
@@ -293,7 +301,9 @@ class Simulation:
 
         #  Time-stepping
         print("Time stepping...")
-        while self.t < self.settings.final_time:
+        while self.t < self.settings.final_time and not np.isclose(
+            self.t, self.settings.final_time
+        ):
             self.iterate()
 
     def run_steady(self):
@@ -332,9 +342,7 @@ class Simulation:
 
         # avoid t > final_time
         next_time = self.t + float(self.dt.value)
-        if next_time > self.settings.final_time and not np.isclose(
-            self.t, self.settings.final_time
-        ):
+        if next_time > self.settings.final_time:
             self.dt.value.assign(self.settings.final_time - self.t)
 
     def display_time(self):
@@ -355,7 +363,7 @@ class Simulation:
         self.update_post_processing_solutions()
 
         self.exports.t = self.t
-        self.exports.write(self.label_to_function, self.dt)
+        self.exports.write(self.label_to_function, self.dt, self.mesh.dx)
 
     def update_post_processing_solutions(self):
         """Creates the post-processing functions by splitting self.u. Projects
